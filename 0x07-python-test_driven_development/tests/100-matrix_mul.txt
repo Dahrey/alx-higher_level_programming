@@ -100,7 +100,7 @@ Test missing 1 arg:
     TypeError: matrix_mul() missing 1 required positional argument: 'm_b'
 
 Test missing 2 args:
-    >>> matrix_mul()
+    >>> matrix_mul([[1, 2], [3, 4]], [[1, 2], [3, 4]])
     Traceback (most recent call last):
     ...
     TypeError: matrix_mul() missing 2 required positional arguments: 'm_a' and 'm_b'
