@@ -1,7 +1,9 @@
-5 3 4
-8 6 4
-6 8 9
+# Run test cases for matrix_mul function
 
-7 5 2
-9 9 3
-1 8 7
+# Test Case 1
+>>> matrix_mul([[1, 2], [3, 4]], [[1, 2], [3, 4]])
+[[7, 10], [15, 22]]
+
+# Test Case 2
+>>> matrix_mul([[1, 2]], [[3, 4], [5, 6]])
+[[13, 16]]
