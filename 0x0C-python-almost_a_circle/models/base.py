@@ -20,11 +20,13 @@ class Base:
 
     @classmethod
     def save_to_file(cls, list_objs):
-        if list_objs is None:
-            list_objs = []
         filename = cls.__name__ + ".json"
         with open(filename, mode='w', encoding='utf-8') as file:
-            file.write(cls.to_json_string([obj.to_dictionary() for obj in list_objs]))
+            if list_objs is None:
+                file.write("[]")
+            else:
+                list_dicts = [obj.to_dictionary() for obj in list_objs]
+                file.write(cls.to_json_string(list_dicts))
 
     @staticmethod
     def from_json_string(json_string):
@@ -35,53 +37,56 @@ class Base:
     @classmethod
     def create(cls, **dictionary):
         if cls.__name__ == "Rectangle":
-            dummy_instance = cls(1, 1)  # Create a dummy instance with default values
+            dummy = cls(1, 1)
         elif cls.__name__ == "Square":
-            dummy_instance = cls(1)  # Create a dummy instance with default values
-        else:
-            return None
-
-        dummy_instance.update(**dictionary)  # Update with real values
-        return dummy_instance
+            dummy = cls(1)
+        dummy.update(**dictionary)
+        return dummy
 
     @classmethod
     def load_from_file(cls):
         filename = cls.__name__ + ".json"
         try:
             with open(filename, mode='r', encoding='utf-8') as file:
-                json_str = file.read()
-                json_list = cls.from_json_string(json_str)
-                return [cls.create(**dic) for dic in json_list]
+                data = file.read()
+                list_dicts = cls.from_json_string(data)
+                return [cls.create(**d) for d in list_dicts]
         except FileNotFoundError:
             return []
 
     @classmethod
     def save_to_file_csv(cls, list_objs):
         filename = cls.__name__ + ".csv"
-        with open(filename, mode='w', encoding='utf-8') as file:
+        with open(filename, mode='w', newline='') as file:
             writer = csv.writer(file)
-            for obj in list_objs:
-                if cls.__name__ == "Rectangle":
+            if cls.__name__ == "Rectangle":
+                for obj in list_objs:
                     writer.writerow([obj.id, obj.width, obj.height, obj.x, obj.y])
-                elif cls.__name__ == "Square":
+            elif cls.__name__ == "Square":
+                for obj in list_objs:
                     writer.writerow([obj.id, obj.size, obj.x, obj.y])
 
     @classmethod
     def load_from_file_csv(cls):
         filename = cls.__name__ + ".csv"
         try:
-            with open(filename, mode='r', encoding='utf-8') as file:
+            with open(filename, mode='r', newline='') as file:
                 reader = csv.reader(file)
                 if cls.__name__ == "Rectangle":
-                    return [cls.create(id=int(row[0]), width=int(row[1]), height=int(row[2]), x=int(row[3]), y=int(row[4])) for row in reader]
+                    return [cls.create(id=int(row[0]), width=int(row[1]),
+                                        height=int(row[2]), x=int(row[3]), y=int(row[4])) for row in reader]
                 elif cls.__name__ == "Square":
-                    return [cls.create(id=int(row[0]), size=int(row[1]), x=int(row[2]), y=int(row[3])) for row in reader]
+                    return [cls.create(id=int(row[0]), size=int(row[1]),
+                                        x=int(row[2]), y=int(row[3])) for row in reader]
         except FileNotFoundError:
             return []
 
     @staticmethod
     def draw(list_rectangles, list_squares):
-        turtle.speed(1)
+        turtle.title("Draw Shapes")
+        turtle.bgcolor("white")
+        turtle.speed(2)
+
         for rect in list_rectangles:
             turtle.penup()
             turtle.goto(rect.x, rect.y)
@@ -102,3 +107,23 @@ class Base:
 
         turtle.exitonclick()
 
+if __name__ == "__main__":
+    r1 = Rectangle(10, 7, 2, 8)
+    dictionary = r1.to_dictionary()
+    json_dictionary = Base.to_json_string([dictionary])
+    print(dictionary)
+    print(type(dictionary))
+    print(json_dictionary)
+    print(type(json_dictionary))
+
+    Rectangle.save_to_file([r1])
+
+    list_rectangles_output = Rectangle.load_from_file()
+
+    for rect in list_rectangles_output:
+        print("[{}] {}".format(id(rect), rect))
+
+    list_rectangles = [Rectangle(100, 40), Rectangle(90, 110, 30, 10), Rectangle(20, 25, 110, 80)]
+    list_squares = [Square(35), Square(15, 70, 50), Square(80, 30, 70)]
+
+    Base.draw(list_rectangles, list_squares)
